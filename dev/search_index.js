@@ -1,0 +1,3 @@
+var documenterSearchIndex = {"docs":
+[{"location":"","page":"Home","title":"Home","text":"CurrentModule = BurrowWheelerAligner","category":"page"},{"location":"#BurrowWheelerAligner","page":"Home","title":"BurrowWheelerAligner","text":"","category":"section"},{"location":"","page":"Home","title":"Home","text":"Documentation for BurrowWheelerAligner.","category":"page"},{"location":"","page":"Home","title":"Home","text":"","category":"page"},{"location":"","page":"Home","title":"Home","text":"Modules = [BurrowWheelerAligner]","category":"page"},{"location":"#BurrowWheelerAligner.load_index-Tuple{String}","page":"Home","title":"BurrowWheelerAligner.load_index","text":"load_index(index_file::String)\n\nLoad index file.\n\n\n\n\n\n","category":"method"}]
+}
