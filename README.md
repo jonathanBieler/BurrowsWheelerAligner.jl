@@ -6,21 +6,21 @@
 
 Minimal WIP bindings for bwa (https://github.com/lh3/bwa).
 
-# Example (see tests)
+## Example (see tests)
 
 ```julia
-    index_file = joinpath(@__DIR__, "data", "genome.fa")
-    idx = BWA.load_index(index_file)
-    @assert idx.bns != C_NULL
+index_file = joinpath(@__DIR__, "data", "genome.fa")
+idx = BWA.load_index(index_file)
+@assert idx.bns != C_NULL
 
-    aligner = BWA.Aligner(index_file)
+aligner = BWA.Aligner(index_file)
 
-    record = FASTA.Record(""">test\nGAGTTTTATCGCTTCCATGACGCAGAAGTTAACACTTTCGGATATTTCTGATGAGTCGAAAAATTATCTT""")
-    aln = BWA.align(aligner, record)[1]
+record = FASTA.Record(""">test\nGAGTTTTATCGCTTCCATGACGCAGAAGTTAACACTTTCGGATATTTCTGATGAGTCGAAAAATTATCTT""")
+aln = BWA.align(aligner, record)[1]
 
-    @assert BWA.position(aln) == 1
-    @assert BWA.cigar(aln) == "70M"
-    @assert BWA.mappingquality(aln) == 60
-    @assert BWA.is_rev(aln) == false
-    @assert BWA.refname(aln, aligner) == "PhiX"
+@assert BWA.position(aln) == 1
+@assert BWA.cigar(aln) == "70M"
+@assert BWA.mappingquality(aln) == 60
+@assert BWA.is_rev(aln) == false
+@assert BWA.refname(aln, aligner) == "PhiX"
 ```
