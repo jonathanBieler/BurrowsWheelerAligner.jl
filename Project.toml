@@ -3,11 +3,20 @@ uuid = "231d3afb-1936-45f0-8367-36f73a875095"
 authors = ["Jonathan Bieler <jonathan.bieler@alumni.epfl.ch> and contributors"]
 version = "0.1.0"
 
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+[deps]
+BWA_jll = "f8ebc3b1-10c5-56bc-9528-e517be8c92c9"
+FASTX = "c2308a5c-f048-11e8-3e8a-31650f418d12"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+XAM = "d759349c-bcba-11e9-07c2-5b90f8f05f7c"
 
 [compat]
 julia = "1"
+FASTX = "1, 1.1"
+XAM = "0.2"
+BWA_jll = "0.7"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test"]

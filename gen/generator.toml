@@ -1,0 +1,6 @@
+[general]
+library_name = "libbwa"
+output_file_path = "./LibBWA.jl"
+module_name = "LibBWA"
+jll_pkg_name = "BWA_jll"
+export_symbol_prefixes = ["CX", "bwa_"]
