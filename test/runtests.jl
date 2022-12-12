@@ -10,7 +10,7 @@ import BurrowWheelerAligner.FASTA
 
     aligner = BWA.Aligner(index_file)
 
-    record = FASTA.Record(""">test\nGAGTTTTATCGCTTCCATGACGCAGAAGTTAACACTTTCGGATATTTCTGATGAGTCGAAAAATTATCTT""")
+    record = FASTA.Record("test", "GAGTTTTATCGCTTCCATGACGCAGAAGTTAACACTTTCGGATATTTCTGATGAGTCGAAAAATTATCTT")
     aln = BWA.align(aligner, record)[1]
     @test BWA.position(aln) == 1
     @test BWA.cigar(aln) == "70M"
@@ -19,7 +19,7 @@ import BurrowWheelerAligner.FASTA
     @test BWA.refname(aln, aligner) == "PhiX"
 
     # reverse completement
-    record = FASTA.Record(""">test\nAAGATAATTTTTCGACTCATCAGAAATATCCGAAAGTGTTAACTTCTGCGTCATGGAAGCGATAAAACTC""")
+    record = FASTA.Record("test", "AAGATAATTTTTCGACTCATCAGAAATATCCGAAAGTGTTAACTTCTGCGTCATGGAAGCGATAAAACTC")
     aln = BWA.align(aligner, record)[1]
     @test BWA.position(aln) == 1
     @test BWA.cigar(aln) == "70M"
@@ -27,17 +27,17 @@ import BurrowWheelerAligner.FASTA
     @test BWA.is_rev(aln) == true
 
     #skip first base
-    record = FASTA.Record(""">test\nAGTTTTATCGCTTCCATGACGCAGAAGTTAACACTTTCGGATATTTCTGATGAGTCGAAAAATTATCTT""")
+    record = FASTA.Record("test", "AGTTTTATCGCTTCCATGACGCAGAAGTTAACACTTTCGGATATTTCTGATGAGTCGAAAAATTATCTT")
     aln = BWA.align(aligner, record)[1]
     @test BWA.position(aln) == 2
 
     # 5bp insertion in the middle
-    record = FASTA.Record(""">test\nGAGTTTTATCGCTTCCATGACGCAGAAGTTAACACGGGGGTTTCGGATATTTCTGATGAGTCGAAAAATTATCTT""")
+    record = FASTA.Record("test", "GAGTTTTATCGCTTCCATGACGCAGAAGTTAACACGGGGGTTTCGGATATTTCTGATGAGTCGAAAAATTATCTT")
     aln = BWA.align(aligner, record)[1]
     @test BWA.cigar(aln) == "35M5I35M"
 
     # second ref
-    record = FASTA.Record(""">test\nAGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC""")
+    record = FASTA.Record("test", "AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC")
     aln = BWA.align(aligner, record)[1]
     @test BWA.cigar(aln) == "70M"
     @test BWA.refname(aln, aligner) == "chr"
