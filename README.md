@@ -9,6 +9,10 @@ Minimal WIP bindings for bwa (https://github.com/lh3/bwa).
 ## Example (see tests)
 
 ```julia
+using BurrowWheelerAligner
+const BWA = BurrowWheelerAligner
+import BurrowWheelerAligner.FASTA
+
 index_file = joinpath(@__DIR__, "data", "genome.fa")
 idx = BWA.load_index(index_file)
 @assert idx.bns != C_NULL
