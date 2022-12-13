@@ -17,15 +17,14 @@ module BurrowWheelerAligner
 
     function align(aligner::Aligner, record::FASTA.Record)
 
-        #seq_ptr, seq_l = pointer(record.data, first(record.sequence)), length(record.sequence)
         seq_idx = FASTX.seq_data_part(record, 1:seqsize(record))
         seq_ptr, seq_l = pointer(record.data, first(seq_idx)), seqsize(record)
 
         ar = LibBWA.mem_align1(aligner.opt, aligner.index.bwt, aligner.index.bns, aligner.index.pac, seq_l, seq_ptr)
     
         alns = LibBWA.mem_aln_t[]
-        for i=0:ar.n-1
-            ptr = ar.a + i*sizeof(LibBWA.mem_alnreg_t)
+        for i=1:Int(ar.n)
+            ptr = ar.a + (i-1)*sizeof(LibBWA.mem_alnreg_t)
             aln = LibBWA.mem_reg2aln(aligner.opt, aligner.index.bns, aligner.index.pac, seq_l, seq_ptr, ptr)
             push!(alns, aln)
         end

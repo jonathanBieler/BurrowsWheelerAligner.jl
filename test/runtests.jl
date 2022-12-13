@@ -3,7 +3,7 @@ const BWA = BurrowWheelerAligner
 using Test
 import BurrowWheelerAligner.FASTA
 
-#@testset "BurrowWheelerAligner.jl" begin
+@testset "BurrowWheelerAligner.jl" begin
     index_file = joinpath(@__DIR__, "data", "genome.fa")
     idx = BWA.load_index(index_file)
     @test idx.bns != C_NULL
@@ -42,8 +42,11 @@ import BurrowWheelerAligner.FASTA
     @test BWA.cigar(aln) == "70M"
     @test BWA.refname(aln, aligner) == "chr"
     @test BWA.mappingquality(aln) == 60
+
+    # check 0 matches work
+    record = FASTA.Record("test", "AACTCCTAGGCCCAGGATGGTAAGTGTGGGCCTAGGGGAGACTGGGAATAGCCCTGGGTCAGGGTCTAGT")
+    aln = BWA.align(aligner, record)
+    @test length(aln) == 0
     
     # todo implement getters and show for mem_aln_t
-
-
-#end
+end
