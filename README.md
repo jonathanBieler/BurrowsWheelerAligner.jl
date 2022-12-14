@@ -1,7 +1,7 @@
-# BurrowWheelerAligner
+# BurrowsWheelerAligner
 
-[![Build Status](https://github.com/jonathanBieler/BurrowWheelerAligner.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/jonathanBieler/BurrowWheelerAligner.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/jonathanBieler/BurrowWheelerAligner.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/jonathanBieler/BurrowWheelerAligner.jl)
+[![Build Status](https://github.com/jonathanBieler/BurrowsWheelerAligner.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/jonathanBieler/BurrowsWheelerAligner.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/jonathanBieler/BurrowsWheelerAligner.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/jonathanBieler/BurrowsWheelerAligner.jl)
 
 
 Minimal WIP bindings for bwa (https://github.com/lh3/bwa).
@@ -9,13 +9,11 @@ Minimal WIP bindings for bwa (https://github.com/lh3/bwa).
 ## Example (see tests)
 
 ```julia
-using BurrowWheelerAligner
-const BWA = BurrowWheelerAligner
-import BurrowWheelerAligner.FASTA
+using BurrowsWheelerAligner
+const BWA = BurrowsWheelerAligner
+import BWA.FASTA
 
 index_file = joinpath(@__DIR__, "data", "genome.fa")
-idx = BWA.load_index(index_file)
-@assert idx.bns != C_NULL
 
 aligner = BWA.Aligner(index_file)
 

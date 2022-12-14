@@ -1,9 +1,9 @@
-using BurrowWheelerAligner
-const BWA = BurrowWheelerAligner
+using BurrowsWheelerAligner
+const BWA = BurrowsWheelerAligner
 using Test
-import BurrowWheelerAligner.FASTA
+import BurrowsWheelerAligner.FASTA
 
-@testset "BurrowWheelerAligner.jl" begin
+@testset "BurrowsWheelerAligner.jl" begin
     index_file = joinpath(@__DIR__, "data", "genome.fa")
     idx = BWA.load_index(index_file)
     @test idx.bns != C_NULL

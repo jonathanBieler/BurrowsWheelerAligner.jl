@@ -11,7 +11,7 @@ version = "0.0.1"
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
-[[deps.BurrowWheelerAligner]]
+[[deps.BurrowsWheelerAligner]]
 path = ".."
 uuid = "231d3afb-1936-45f0-8367-36f73a875095"
 version = "0.1.0"

@@ -1,16 +1,16 @@
-using BurrowWheelerAligner
+using BurrowsWheelerAligner
 using Documenter
 
-DocMeta.setdocmeta!(BurrowWheelerAligner, :DocTestSetup, :(using BurrowWheelerAligner); recursive=true)
+DocMeta.setdocmeta!(BurrowsWheelerAligner, :DocTestSetup, :(using BurrowsWheelerAligner); recursive=true)
 
 makedocs(;
-    modules=[BurrowWheelerAligner],
+    modules=[BurrowsWheelerAligner],
     authors="Jonathan Bieler <jonathan.bieler@alumni.epfl.ch> and contributors",
-    repo="https://github.com/jonathanBieler/BurrowWheelerAligner.jl/blob/{commit}{path}#{line}",
-    sitename="BurrowWheelerAligner.jl",
+    repo="https://github.com/jonathanBieler/BurrowsWheelerAligner.jl/blob/{commit}{path}#{line}",
+    sitename="BurrowsWheelerAligner.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://jonathanBieler.github.io/BurrowWheelerAligner.jl",
+        canonical="https://jonathanBieler.github.io/BurrowsWheelerAligner.jl",
         assets=String[],
     ),
     pages=[
@@ -19,6 +19,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/jonathanBieler/BurrowWheelerAligner.jl",
+    repo="github.com/jonathanBieler/BurrowsWheelerAligner.jl",
     devbranch="main",
 )

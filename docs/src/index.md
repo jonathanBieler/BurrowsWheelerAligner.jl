@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = BurrowWheelerAligner
+CurrentModule = BurrowsWheelerAligner
 ```
 
-# BurrowWheelerAligner
+# BurrowsWheelerAligner
 
-Documentation for [BurrowWheelerAligner](https://github.com/jonathanBieler/BurrowWheelerAligner.jl).
+Documentation for [BurrowsWheelerAligner](https://github.com/jonathanBieler/BurrowsWheelerAligner.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [BurrowWheelerAligner]
+Modules = [BurrowsWheelerAligner]
 ```

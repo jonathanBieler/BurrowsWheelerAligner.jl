@@ -1,4 +1,4 @@
-name = "BurrowWheelerAligner"
+name = "BurrowsWheelerAligner"
 uuid = "231d3afb-1936-45f0-8367-36f73a875095"
 authors = ["Jonathan Bieler <jonathan.bieler@alumni.epfl.ch> and contributors"]
 version = "0.1.1"

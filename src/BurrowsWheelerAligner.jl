@@ -1,4 +1,4 @@
-module BurrowWheelerAligner
+module BurrowsWheelerAligner
 
     using FASTX, XAM, Printf
     import XAM: position, refname, mappingquality
