@@ -22,6 +22,8 @@ struct mem_alnreg_t
     hash::UInt64
 end
 
+
+
 #= typedef struct {
 	int64_t rb, re; // [rb,re): reference sequence in the alignment
 	int qb, qe;     // [qb,qe): query sequence in the alignment

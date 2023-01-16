@@ -1,7 +1,7 @@
 name = "BurrowsWheelerAligner"
 uuid = "231d3afb-1936-45f0-8367-36f73a875095"
 authors = ["Jonathan Bieler <jonathan.bieler@alumni.epfl.ch> and contributors"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 BWA_jll = "f8ebc3b1-10c5-56bc-9528-e517be8c92c9"
