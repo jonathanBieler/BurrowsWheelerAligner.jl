@@ -22,7 +22,7 @@ module BurrowsWheelerAligner
     end
 
     # https://github.com/lh3/bwa/blob/master/example.c#L37
-    function align(aligner::Aligner, record::FASTA.Record)
+    function align(aligner::Aligner, record::Union{FASTA.Record, FASTQ.Record})
 
         seq_idx = FASTX.seq_data_part(record, 1:seqsize(record))
         seq_ptr, seq_l = pointer(record.data, first(seq_idx)), seqsize(record)
