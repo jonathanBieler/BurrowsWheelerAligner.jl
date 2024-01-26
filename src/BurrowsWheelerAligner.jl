@@ -59,7 +59,13 @@ module BurrowsWheelerAligner
         name = unsafe_load(anns, aln.rid+1).name
         unsafe_string(name)
     end
-    
+
+    description(aln::LibBWA.mem_aln_t, aligner::Aligner) = begin
+        anns = unsafe_load(aligner.index.bns).anns
+        anno = unsafe_load(anns, aln.rid+1).anno
+        unsafe_string(anno)
+    end
+
     # uint32_t is_rev:1, is_alt:1, mapq:8, NM:22; // is_rev: whether on the reverse strand; mapq: mapping quality; NM: edit distance
     is_rev(aln::LibBWA.mem_aln_t) = aln.is_rev_is_alt_mapq_NM >> 0 & 0x01 == 0x00000001
     is_alt(aln::LibBWA.mem_aln_t) = aln.is_rev_is_alt_mapq_NM >> 1 & 0x01 == 0x00000001
