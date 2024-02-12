@@ -4,7 +4,9 @@
 [![Coverage](https://codecov.io/gh/jonathanBieler/BurrowsWheelerAligner.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/jonathanBieler/BurrowsWheelerAligner.jl)
 
 
-Minimal WIP bindings for bwa (https://github.com/lh3/bwa).
+Minimal WIP bindings for bwa (https://github.com/lh3/bwa)
+
+**Warning** : make sure you use the same version of BWA as https://github.com/JuliaBinaryWrappers/BWA_jll.jl (0.7.17) to generate the reference index.
 
 ## Example (see tests)
 
