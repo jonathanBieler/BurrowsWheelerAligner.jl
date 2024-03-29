@@ -2,6 +2,7 @@ using BurrowsWheelerAligner
 const BWA = BurrowsWheelerAligner
 using Test
 import BurrowsWheelerAligner.FASTA
+import BurrowsWheelerAligner.SAM
 
 @testset "BurrowsWheelerAligner.jl" begin
     index_file = joinpath(@__DIR__, "data", "genome.fa")
@@ -49,4 +50,21 @@ import BurrowsWheelerAligner.FASTA
     @test length(aln) == 0
     
     # todo implement getters and show for mem_aln_t
+    
+    ## pair-end
+
+    aligner = BWA.Aligner(index_file; paired = true, nthreads = 2)
+
+    records = (
+        FASTA.Record("test", "TGCGTTTATGGTACGCTGGACTTTGTGGGATACCCTCGCTTTCCTGCTCCTGTTGAGTTTATTGCTGCCG"),
+        FASTA.Record("test", "AAAGGCAAGCGTAAAGGCGCTCGTCTTTGGTATGTAGGTGGTCAACAATTTTAATTGCAGGGGCTTCGGC"),
+    )
+    r1, r2 = BWA.align(aligner, records)
+
+    @test SAM.cigar(r1) == "70M"
+    @test SAM.cigar(r2) == "70M"
+
+    @test SAM.position(r1) == 561
+    @test SAM.position(r2) == 911
+    
 end
