@@ -19,4 +19,5 @@ module BurrowsWheelerAligner
         unsafe_load(ptr)
     end
     
+
 end

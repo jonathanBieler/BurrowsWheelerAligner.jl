@@ -10,11 +10,7 @@ end
 
 position(aln::LibBWA.mem_aln_t) = aln.pos + 1
 
-refname(aln::LibBWA.mem_aln_t, aligner::Aligner) = begin
-    anns = unsafe_load(aligner.index.bns).anns
-    name = unsafe_load(anns, aln.rid+1).name
-    unsafe_string(name)
-end
+refname(aln::LibBWA.mem_aln_t, aligner::Aligner) = refname(aligner::Aligner, aln.rid+1)
 
 description(aln::LibBWA.mem_aln_t, aligner::Aligner) = begin
     anns = unsafe_load(aligner.index.bns).anns

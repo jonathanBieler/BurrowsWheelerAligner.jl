@@ -30,6 +30,29 @@ pairend_flag!(aligner::Aligner) = flag!(aligner::Aligner, LibBWA.MEM_F_PE)
 
 nthreads!(aligner::Aligner, n) = unsafe_store!(Ptr{Cint}(aligner.opt + fieldoffset(LibBWA.mem_opt_t, 22)), n)
 
+refname(aligner::Aligner, reference_id::Int) = begin
+    @assert reference_id > 0
+    anns = unsafe_load(aligner.index.bns).anns
+    name = unsafe_load(anns, reference_id).name
+    unsafe_string(name)
+end
+
+reflength(aligner::Aligner, reference_id::Int) = begin
+    @assert reference_id > 0
+    anns = unsafe_load(aligner.index.bns).anns
+    unsafe_load(anns, reference_id).len
+end
+
+number_of_references(aligner::Aligner) = unsafe_load(aligner.index.bns).n_seqs
+
+function header(aligner::Aligner) 
+    SAM.Header(vcat(
+        SAM.MetaInfo("HD", ["VN" => "1.0", "SO" => "coordinate"]),
+        [SAM.MetaInfo("SQ", ["SN" => refname(aligner, i), "LN" => reflength(aligner, i)]) for i in 1:number_of_references(aligner)],
+        SAM.MetaInfo("PG", ["ID" => "BWA_jll", "PN" => "BWA_jll", "VN" => "0.7.17+0"]),
+    ))
+end
+
 function close_alns(alns)
     for aln in alns
         ccall((:free, LibBWA.libbwa), Cvoid, (Ptr{UInt32},), aln.cigar)
