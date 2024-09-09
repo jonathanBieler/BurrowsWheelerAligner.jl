@@ -1,6 +1,6 @@
 using BurrowsWheelerAligner
 const BWA = BurrowsWheelerAligner
-using Test
+using Test, Random
 import BurrowsWheelerAligner.FASTA
 import BurrowsWheelerAligner.SAM
 
@@ -53,18 +53,43 @@ import BurrowsWheelerAligner.SAM
     
     ## pair-end
 
-    aligner = BWA.Aligner(index_file; paired = true, nthreads = 2)
+    aligner = BWA.Aligner(index_file; paired = true, nthreads = 8)
 
-    records = (
-        FASTA.Record("test", "TGCGTTTATGGTACGCTGGACTTTGTGGGATACCCTCGCTTTCCTGCTCCTGTTGAGTTTATTGCTGCCG"),
-        FASTA.Record("test", "AAAGGCAAGCGTAAAGGCGCTCGTCTTTGGTATGTAGGTGGTCAACAATTTTAATTGCAGGGGCTTCGGC"),
-    )
-    r1, r2 = BWA.align(aligner, records)
+    r1 = FASTA.Record("test1", "TGCGTTTATGGTACGCTGGACTTTGTGGGATACCCTCGCTTTCCTGCTCCTGTTGAGTTTATTGCTGCCG")
+    r2 = FASTA.Record("test1", "AAAGGCAAGCGTAAAGGCGCTCGTCTTTGGTATGTAGGTGGTCAACAATTTTAATTGCAGGGGCTTCGGC")
 
-    @test SAM.cigar(r1) == "70M"
-    @test SAM.cigar(r2) == "70M"
+    # test internals
+    ptr1 = BWA.convert_identifier(r1) 
+    ptr2 = BWA.convert_identifier(r2) 
+    @test ptr2 - ptr1 == length(FASTA.identifier(r1)) + 1
+    @test unsafe_string(ptr1) == FASTA.identifier(r1)
+    @test unsafe_string(ptr2) == FASTA.identifier(r2)
 
-    @test SAM.position(r1) == 561
-    @test SAM.position(r2) == 911
+    records = (r1,r2)
+
+    sam1, sam2 = BWA.align(aligner, records)
+
+    @test SAM.cigar(sam1) == "70M"
+    @test SAM.cigar(sam2) == "70M"
+
+    @test SAM.position(sam1) == 561
+    @test SAM.position(sam2) == 911
     
+    ## pair-end with lots of records
+    
+    records = Tuple{FASTA.Record,FASTA.Record}[]
+    for i in 1:10_000
+        n = randstring(rand(10:20))
+        r1 = FASTA.Record(n, "TGCGTTTATGGTACGCTGGACTTTGTGGGATACCCTCGCTTTCCTGCTCCTGTTGAGTTTATTGCTGCCG")
+        r2 = FASTA.Record(n, "AAAGGCAAGCGTAAAGGCGCTCGTCTTTGGTATGTAGGTGGTCAACAATTTTAATTGCAGGGGCTTCGGC")
+        push!(records, (r1,r2))
+    end
+
+    alns = BWA.align(aligner, records)
+    @time alns = BWA.align(aligner, records)
+    @test length(alns) == length(records)
+    
+    @test SAM.position(alns[end][1]) == 561
+    @test SAM.position(alns[end][2]) == 911
+
 end

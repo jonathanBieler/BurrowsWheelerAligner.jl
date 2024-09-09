@@ -3,6 +3,8 @@ module BurrowsWheelerAligner
     using FASTX, XAM, Printf
     import XAM: position
 
+    import Base.unsafe_convert
+
     include("LibBWA.jl")
     include("Aligner.jl")
     include("mem_aln_t.jl")
@@ -19,5 +21,4 @@ module BurrowsWheelerAligner
         unsafe_load(ptr)
     end
     
-
 end

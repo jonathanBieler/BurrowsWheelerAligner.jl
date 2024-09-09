@@ -62,33 +62,75 @@ end
 # https://github.com/lh3/bwa/blob/master/example.c#L37
 function align(aligner::Aligner, record::Union{FASTA.Record, FASTQ.Record})
 
-    seq_idx = FASTX.seq_data_part(record, 1:seqsize(record))
-    seq_ptr, seq_l = pointer(record.data, first(seq_idx)), seqsize(record)
+    GC.@preserve record begin
 
-    ar = LibBWA.mem_align1(aligner.opt, aligner.index.bwt, aligner.index.bns, aligner.index.pac, seq_l, seq_ptr)
-    
-    alns = LibBWA.mem_aln_t[]
-    for i=1:Int(ar.n)
-        ptr = ar.a + (i-1)*sizeof(LibBWA.mem_alnreg_t)
-        aln = LibBWA.mem_reg2aln(aligner.opt, aligner.index.bns, aligner.index.pac, seq_l, seq_ptr, ptr)
-        push!(alns, aln)
+        seq_idx = FASTX.seq_data_part(record, 1:seqsize(record))
+        seq_ptr = Base.unsafe_convert(Ptr{Cchar}, record.data) + (first(seq_idx)-1)*sizeof(Cchar)  #pointer(record.data, first(seq_idx))
+        seq_l = seqsize(record)
 
+        ar = LibBWA.mem_align1(aligner.opt, aligner.index.bwt, aligner.index.bns, aligner.index.pac, seq_l, seq_ptr)
+        
+        alns = LibBWA.mem_aln_t[]
+        for i=1:Int(ar.n)
+            ptr = ar.a + (i-1)*sizeof(LibBWA.mem_alnreg_t)
+            aln = LibBWA.mem_reg2aln(aligner.opt, aligner.index.bns, aligner.index.pac, seq_l, seq_ptr, ptr)
+            push!(alns, aln)
+
+        end
+        ccall((:free, LibBWA.libbwa), Cvoid, (Ptr{LibBWA.mem_alnreg_t},), ar.a)
+        finalizer(close_alns, alns)
     end
-    ccall((:free, LibBWA.libbwa), Cvoid, (Ptr{LibBWA.mem_alnreg_t},), ar.a)
-    finalizer(close_alns, alns)
     alns
 end
 
 ## pair-end
 
-to_null_terminated(x) = vcat([Cchar(c) for c in x], 0x00)
+
+""" Buffer to hold read names """
+mutable struct IdentifierBuffer
+    free_idx::Int
+    data::Vector{Cchar}
+
+    IdentifierBuffer() = new(1, zeros(Cchar, 10_000 * 100)) # will hold 10k names of length 100
+end
+
+reset!(x::IdentifierBuffer) = x.free_idx = 1
+
+global const identifierbuffer = IdentifierBuffer() 
+
+# For 10_000 reads went from 
+# 0.386775 seconds (280.01 k allocations: 341.492 MiB, 3.52% gc time)
+# to
+# 0.387009 seconds (260.01 k allocations: 340.271 MiB, 3.01% gc time)
+# worth ?
+function convert_identifier(record) 
+
+    name = FASTX.identifier(record)
+    
+    # -------- x----------------------x0x00 ------
+    #          start     - name -   end     next free_idx
+    idx_start = identifierbuffer.free_idx
+    idx_end = idx_start + length(name) - 1 
+
+    idx_end+1 > length(identifierbuffer.data) && error("Too many reads to fit in IdentifierBuffer, reduce the number of reads.")
+
+    buffer_idx = idx_start:idx_end
+    #@assert length(name) == length(buffer_idx)
+
+    for (in, ib) in zip(eachindex(name), buffer_idx)
+        identifierbuffer.data[ib] = Cchar(name[in])
+    end
+    identifierbuffer.data[idx_end + 1] = 0x00
+    identifierbuffer.free_idx = idx_end + 2
+    
+    unsafe_convert(Ptr{Cchar}, identifierbuffer.data) + sizeof(Cchar) * (idx_start-1)
+end
 
 quality_pointer(record::FASTA.Record) = C_NULL
-quality_pointer(record::FASTQ.Record) = pointer(FASTX.quality(record))
+quality_pointer(record::FASTQ.Record) = unsafe_convert(Ptr{Cchar}, FASTX.quality(record))
 
-function bseq1_t(record::Union{FASTA.Record, FASTQ.Record}, id::Int) 
+function bseq1_t(record::Union{FASTA.Record, FASTQ.Record}, name_ptr, id::Int)
 
-    name = FASTX.identifier(record) |> to_null_terminated
     comment = C_NULL
     seq = FASTX.sequence(record) 
     qual = quality_pointer(record)
@@ -96,9 +138,9 @@ function bseq1_t(record::Union{FASTA.Record, FASTQ.Record}, id::Int)
     bseq1 = LibBWA.bseq1_t(
         length(seq),
         id,
-        pointer(name),
+        name_ptr,
         comment,
-        pointer(seq),
+        unsafe_convert(Ptr{Cchar}, seq),
         qual,
         C_NULL,
     )
@@ -106,9 +148,15 @@ end
 
 function align(aligner::Aligner, records::Union{Tuple{FASTA.Record, FASTA.Record}, Tuple{FASTQ.Record, FASTQ.Record}})
 
-    seqs = [bseq1_t(records[1], 1), bseq1_t(records[2], 2)]
+    # As I need to add a null terminator to IDs, I need to allocate a new array and avoid it
+    # being GC'ed. I use a global array to hold names.
+    reset!(identifierbuffer)
+    id1 = convert_identifier(records[1])
+    id2 = convert_identifier(records[2])
+    identifiers = (id1,id2)
+    seqs = [bseq1_t(records[1], identifiers[1], 1), bseq1_t(records[2], identifiers[2], 2)]
     
-    GC.@preserve seqs begin
+    GC.@preserve seqs identifiers begin
 
         n_processed = 0
         n = length(seqs)
@@ -130,4 +178,49 @@ function align(aligner::Aligner, records::Union{Tuple{FASTA.Record, FASTA.Record
     (r1, r2)
 end
 
+function align(aligner::Aligner, records::AbstractVector)
+
+    reset!(identifierbuffer)
+    
+    identifiers = Array{Tuple{Ptr{Cchar},Ptr{Cchar}}}(undef, length(records))
+    for i in eachindex(records)
+        id1 = convert_identifier(records[i][1])
+        id2 = convert_identifier(records[i][2])
+        #@assert unsafe_string(id1) == unsafe_string(id2)
+        identifiers[i] = (id1,id2)
+    end
+
+    seqs = Array{LibBWA.bseq1_t}(undef, 2*length(records))
+    for (i,r) in enumerate(records)
+        
+        seqs[2*(i-1)+1] = bseq1_t(r[1], identifiers[i][1], 1)
+        seqs[2*(i-1)+2] = bseq1_t(r[2], identifiers[i][2], 2)
+    end
+    
+    GC.@preserve seqs records identifiers begin
+
+        n_processed = 0
+        n = length(seqs)
+        LibBWA.mem_process_seqs(
+            aligner.opt, aligner.index.bwt, aligner.index.bns, aligner.index.pac, n_processed,
+            n, unsafe_convert(Ptr{LibBWA.bseq1_t}, seqs), unsafe_convert(Ptr{LibBWA.mem_pestat_t}, aligner.pes0)
+        )
+        
+        @assert any(s.sam != C_NULL for s in seqs)
+
+        out = Array{Tuple{SAM.Record, SAM.Record}}(undef, length(records))
+        
+        for i in eachindex(records)
+            sam = split(unsafe_string(seqs[2*(i-1)+1].sam), '\n')[1]
+            r1 = SAM.Record(sam)
+
+            sam = split(unsafe_string(seqs[2*(i-1)+2].sam), '\n')[1]
+            r2 = SAM.Record(sam)
+
+            out[i] = (r1,r2)
+        end
+    end
+
+    out
+end
 
