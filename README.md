@@ -5,7 +5,8 @@
 
 Minimal WIP bindings for bwa (https://github.com/lh3/bwa)
 
-**Warning** : make sure you use the same version of BWA as https://github.com/JuliaBinaryWrappers/BWA_jll.jl (0.7.17) to generate the reference index.
+**Warning** : This package is still experimental, double check that the results are correct.
+Make sure you use the same version of BWA as https://github.com/JuliaBinaryWrappers/BWA_jll.jl (0.7.17) to generate the reference index.
 
 ## Usage
 ### Single read alignment 
